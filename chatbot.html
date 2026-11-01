@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#d9e2ee">
+<title>My AI Assistant</title>
+<style>
+:root{--bg1:#c6d9e8;--bg2:#e5dfec;--bg3:#f4d9e2;--text:#141c28;--muted:rgba(20,28,40,.48);--glass:rgba(255,255,255,.42);--glass-s:rgba(255,255,255,.9);--stroke:rgba(255,255,255,.75);--navy:#1b2e46;--shadow:0 10px 34px rgba(40,50,90,.14);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#131b27;--bg2:#211b2f;--bg3:#2d1e2b;--text:#eef1f7;--muted:rgba(238,241,247,.5);--glass:rgba(255,255,255,.08);--stroke:rgba(255,255,255,.15);--navy:#6f90c4;--shadow:0 10px 34px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg1:#131b27;--bg2:#211b2f;--bg3:#2d1e2b;--text:#eef1f7;--muted:rgba(238,241,247,.5);--glass:rgba(255,255,255,.08);--stroke:rgba(255,255,255,.15);--navy:#6f90c4;--shadow:0 10px 34px rgba(0,0,0,.35)}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;height:100%;display:flex;flex-direction:column;color:var(--text);font:400 16px/1.45 "SF Pro Display",Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:linear-gradient(170deg,var(--bg1),var(--bg2) 55%,var(--bg3)) fixed;overflow:hidden}
+svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+button{font:inherit;color:inherit;cursor:pointer}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg i{position:absolute;display:block;border-radius:50%}
+.b1{width:95vw;height:95vw;left:-25vw;bottom:-35vw;background:radial-gradient(circle at 50% 40%,var(--navy),transparent 66%);opacity:.6;filter:blur(34px);animation:drift 16s ease-in-out infinite alternate}
+.b2{width:80vw;height:80vw;right:-35vw;top:18%;background:radial-gradient(circle,rgba(255,140,175,.55),transparent 65%);filter:blur(40px);animation:drift 20s ease-in-out infinite alternate-reverse}
+.b3{width:62vw;height:5px;left:8vw;top:30%;border-radius:9px;background:linear-gradient(90deg,transparent,#ff6a3d,#ffb394,transparent);filter:blur(3px);transform:rotate(-7deg);animation:streak 7s ease-in-out infinite}
+.b4{width:50vw;height:4px;left:14vw;top:33.5%;border-radius:9px;background:linear-gradient(90deg,transparent,#ff8a55,#ffc2a3,transparent);filter:blur(3px);transform:rotate(-5deg);animation:streak 7s ease-in-out -2s infinite}
+body.busy .b3,body.busy .b4{animation-duration:1.8s}
+@keyframes drift{to{transform:translate3d(6vw,-5vw,0) scale(1.12)}}
+@keyframes streak{50%{transform:translateX(7vw) rotate(-9deg);opacity:.55}}
+@keyframes blurpulse{50%{filter:blur(3px);opacity:.6}}
+.glass{background:var(--glass);border:1px solid var(--stroke);-webkit-backdrop-filter:blur(22px) saturate(1.3);backdrop-filter:blur(22px) saturate(1.3);box-shadow:var(--shadow)}
+.round{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;padding:0;flex:none}
+.round:active{transform:scale(.94)}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 4px}
+#home{background:none;border:0;color:var(--muted);display:flex;align-items:center;gap:6px;font-size:1rem;padding:8px 0}
+#home svg{width:18px;height:18px}
+.hr{display:flex;gap:10px}
+#surprise{color:#ff4d4d;background:rgba(255,120,120,.22)}
+#scroll{flex:1;overflow-y:auto;padding:8px 20px 12px;display:flex;flex-direction:column;gap:12px}
+.hero{margin-top:auto;padding-top:20px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;font-size:.88rem}
+.chip b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--glass-s);color:#141c28}
+.chip b svg{width:15px;height:15px}
+h1{font-size:clamp(58px,21vw,96px);font-weight:300;letter-spacing:-.045em;line-height:1;margin:14px 0 8px}
+.sub{color:var(--muted);max-width:30ch;margin:0 0 18px}
+.tags{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.tags button{border:1px solid var(--stroke);background:var(--glass);color:var(--muted);border-radius:999px;padding:7px 18px;font-size:.92rem;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.tags button:active{background:var(--glass-s);color:#141c28}
+body.chatting .hero{display:none}
+.msg{max-width:88%;border-radius:26px;padding:14px 18px;white-space:pre-wrap;word-wrap:break-word}
+.meta{display:flex;justify-content:space-between;gap:14px;font-size:.78rem;color:var(--muted);margin-bottom:6px}
+.msg.ai{align-self:flex-start}
+.msg.user{align-self:flex-end;background:var(--glass-s);color:#141c28;border-radius:24px 24px 8px 24px;box-shadow:var(--shadow)}
+.msg.thinking .txt{animation:blurpulse 1.6s ease-in-out infinite;color:var(--muted)}
+.msg.thinking{position:relative;overflow:hidden}
+.msg.thinking::after{content:"";position:absolute;left:-30%;bottom:10px;width:60%;height:3px;border-radius:9px;background:linear-gradient(90deg,transparent,#ff6a3d,#ffb394,transparent);filter:blur(2px);animation:slide 1.6s ease-in-out infinite}
+@keyframes slide{to{left:70%}}
+.dock{padding:6px 16px 14px;display:flex;flex-direction:column;gap:12px}
+.hint{text-align:center;color:var(--muted);font-size:.9rem;margin:0}
+.prompt{display:flex;align-items:center;gap:10px}
+.field{flex:1;display:flex;align-items:center;border-radius:999px;padding:4px 6px 4px 18px;gap:8px;min-height:50px}
+#inp{flex:1;resize:none;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:10px 0;max-height:110px}
+#inp::placeholder{color:var(--muted)}
+.wand{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--glass-s);color:#141c28;border:0;flex:none}
+.wand svg{width:18px;height:18px}
+.tools{display:flex;align-items:center;justify-content:space-between;padding:0 4px}
+.tools .round.on{width:58px;height:58px;background:var(--glass-s);color:#141c28;border:0;box-shadow:0 10px 30px rgba(60,70,120,.28)}
+.tools .round.on:disabled{opacity:.6}
+body.busy .tools .on{animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(255,255,255,.28),0 10px 30px rgba(255,120,80,.35)}}
+#toast{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);padding:8px 16px;border-radius:999px;opacity:0;transition:opacity .25s;pointer-events:none;font-size:.9rem}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="bg"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i></div>
+<header>
+  <button id="home"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Back home</button>
+  <div class="hr">
+    <button id="surprise" class="round glass" aria-label="Surprise me"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2.5l2.2 7.3 7.3 2.2-7.3 2.2L12 21.5l-2.2-7.3L2.5 12l7.3-2.2z"/></svg></button>
+    <button id="all" class="round glass" aria-label="Copy chat"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></button>
+  </div>
+</header>
+<div id="scroll">
+  <div class="hero">
+    <span class="chip glass"><b><svg viewBox="0 0 24 24"><path d="M12 3l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg></b>Claude AI Plus</span>
+    <h1>Hello</h1>
+    <p class="sub">Soft, helpful answers. Ask me anything, from plans to ideas to quick explanations.</p>
+    <div class="tags" id="tags"></div>
+  </div>
+  <div id="log" style="display:contents"></div>
+</div>
+<div class="dock">
+  <p class="hint" id="hint">Tap a suggestion or type below</p>
+  <div class="prompt">
+    <button id="x" class="round glass" aria-label="Clear"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="field glass">
+      <textarea id="inp" rows="1" placeholder="Prompt…"></textarea>
+      <span class="wand"><svg viewBox="0 0 24 24"><path d="M5 19L15 9M14 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1zM19 12l.7 1.3L21 14l-1.3.7L19 16l-.7-1.3L17 14l1.3-.7z"/></svg></span>
+    </div>
+  </div>
+  <div class="tools">
+    <button id="new" class="round glass" aria-label="New chat"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5"/></svg></button>
+    <button id="mic" class="round glass" aria-label="Speak"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <button id="theme" class="round glass" aria-label="Theme"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+    <button id="send" class="round on" aria-label="Send"><svg viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    <button id="copy" class="round glass" aria-label="Copy reply"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button>
+    <button id="redo" class="round glass" aria-label="Regenerate"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></svg></button>
+  </div>
+</div>
+<div id="toast" class="glass"></div>
+<script>
+(function(){
+var SYSTEM="You are a calm, friendly personal assistant on the user\u2019s Android phone. Keep answers concise and easy to read on a small screen. Use plain text, no markdown headings.";
+var history=[],busy=false,sample=null;
+var $=function(i){return document.getElementById(i)};
+var log=$('log'),inp=$('inp'),send=$('send'),scroll=$('scroll');
+var SUG=['Plan my day','Explain something simply','Help me write a text','Give me a recipe idea'];
+function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(function(){e.classList.remove('show')},1400)}
+function now(){return new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+function copy(t,m){if(!t)return;try{navigator.clipboard.writeText(t).then(function(){toast(m)},function(){toast('Copy not allowed')})}catch(e){toast('Copy not allowed')}}
+SUG.forEach(function(t){var b=document.createElement('button');b.textContent=t;b.onclick=function(){ask(t)};$('tags').appendChild(b)});
+function render(){
+  document.body.classList.toggle('chatting',history.length>0);
+  $('hint').textContent=history.length?'Ask a follow-up or tap regenerate':'Tap a suggestion or type below';
+  log.innerHTML='';
+  history.forEach(function(m){
+    var d=document.createElement('div'),th=m.content==='Thinking\u2026';
+    d.className='msg '+(m.role==='user'?'user':'ai glass')+(th?' thinking':'');
+    if(m.role!=='user'){var mt=document.createElement('div');mt.className='meta';mt.innerHTML='<span>Assistant</span><span>'+m.time+'</span>';d.appendChild(mt)}
+    var s=document.createElement('div');s.className='txt';s.textContent=m.content;d.appendChild(s);log.appendChild(d);
+  });
+  scroll.scrollTop=scroll.scrollHeight;
+}
+async function ask(text){
+  text=(text||'').trim();if(!text||busy)return;
+  if(!sample){try{sample=await claude.use('sample')}catch(e){sample=null}
+    if(!sample){history.push({role:'assistant',time:now(),content:'The AI engine isn\u2019t available in this view. Open this page from the Claude app and allow access when asked.'});render();return}}
+  busy=true;document.body.classList.add('busy');send.disabled=true;inp.value='';inp.style.height='auto';
+  history.push({role:'user',time:now(),content:text});
+  var reply={role:'assistant',time:now(),content:'Thinking\u2026'};history.push(reply);render();
+  var convo=history.slice(0,-1).map(function(m){return{role:m.role,content:m.content}});
+  var input=[{role:'user',content:SYSTEM+'\n\nConversation so far follows. Reply to the last user message.'},{role:'assistant',content:'Understood.'}].concat(convo);
+  try{var r=await sample(input,{cache:false,onText:function(t){reply.content=t.text||'Thinking\u2026';render()}});reply.content=r.text||reply.content}
+  catch(err){reply.content=(err&&err.code==='rate_limited')?'Too many requests. Try again in a moment.':'Sorry, something went wrong. Please try again.'}
+  busy=false;document.body.classList.remove('busy');send.disabled=false;render();
+}
+function lastAI(){for(var i=history.length-1;i>=0;i--)if(history[i].role==='assistant')return history[i].content;return''}
+function reset(){if(!busy){history=[];render()}}
+send.onclick=function(){ask(inp.value)};
+inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask(inp.value)}});
+inp.addEventListener('input',function(){inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,110)+'px'});
+$('x').onclick=function(){inp.value='';inp.style.height='auto';inp.focus()};
+$('new').onclick=reset;$('home').onclick=reset;
+$('surprise').onclick=function(){ask(['Tell me a fun fact','Give me a tiny challenge for today','Suggest a calming evening routine','Teach me a useful word'][Math.floor(Math.random()*4)])};
+$('all').onclick=function(){copy(history.map(function(m){return(m.role==='user'?'You: ':'Assistant: ')+m.content}).join('\n\n'),'Chat copied')};
+$('copy').onclick=function(){copy(lastAI(),'Reply copied')};
+$('redo').onclick=function(){if(busy)return;for(var i=history.length-1;i>=0;i--)if(history[i].role==='user'){var t=history[i].content;history=history.slice(0,i);ask(t);return}};
+$('theme').onclick=function(){var r=document.documentElement,dk=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dk?'light':'dark'};
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){$('mic').onclick=function(){try{var r=new SR();r.lang=navigator.language||'en-US';r.onresult=function(e){inp.value=e.results[0][0].transcript;inp.dispatchEvent(new Event('input'))};r.start();toast('Listening\u2026')}catch(e){}}}else{$('mic').style.opacity='.4';$('mic').onclick=function(){toast('Voice not supported here')}}
+render();
+})();
+</script>
+</body>
+</html>
